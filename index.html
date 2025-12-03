@@ -2,16 +2,101 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>tnop Matrix</title>
+<title>TNOPS</title>
 <style>
     body {
         margin: 0;
         overflow: hidden;
         background: black;
+        font-family: Arial, sans-serif;
     }
 
     canvas {
-        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 0;
+    }
+
+    /* Hoşgeldiniz yazısı */
+    #welcome {
+        position: absolute;
+        width: 100%;
+        top: 40%;
+        text-align: center;
+        font-size: 80px;
+        color: #00ff80; /* daha parlak neon */
+        text-shadow: 0 0 20px #00ff80, 0 0 40px #00ff80;
+        z-index: 2;
+        animation: moveUp 4s ease forwards;
+    }
+
+    /* Yazının yukarı çıkıp küçülmesi */
+    @keyframes moveUp {
+        0% {
+            top: 40%;
+            font-size: 80px;
+            opacity: 1;
+        }
+        60% {
+            top: 10%;
+            font-size: 40px;
+            opacity: 1;
+        }
+        100% {
+            top: 10%;
+            font-size: 40px;
+            opacity: 1;
+        }
+    }
+
+    /* Giriş paneli */
+    #login-box {
+        position: absolute;
+        top: 60%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.6);
+        padding: 25px;
+        border: 1px solid #00ff80;
+        border-radius: 10px;
+        width: 300px;
+        text-align: center;
+        box-shadow: 0 0 15px #00ff80;
+        z-index: 3;
+        animation: fadeIn 3s ease 2s forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+
+    input {
+        width: 90%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #00ff80;
+        border-radius: 5px;
+        background: black;
+        color: #00ff80;
+        font-size: 16px;
+    }
+
+    button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        background: #00ff80;
+        border: none;
+        border-radius: 5px;
+        color: black;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #00ffaa;
     }
 </style>
 </head>
@@ -19,50 +104,55 @@
 
 <canvas id="matrix"></canvas>
 
+<div id="welcome">Hoşgeldiniz</div>
+
+<div id="login-box">
+    <input type="text" placeholder="Kullanıcı adı">
+    <input type="password" placeholder="Şifre">
+    <button>Giriş Yap</button>
+</div>
+
 <script>
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
 
-    // Tam ekran yap
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Artık MATRIX yerine "tnop" karakterleri düşecek
+    // Neon parlak yeşil kod akışı
     const letters = "tnop";
     const fontSize = 16;
     const columns = Math.floor(canvas.width / fontSize);
 
-    // Her kolon rastgele bir yükseklikten başlasın
     const drops = [];
     for (let i = 0; i < columns; i++) {
         drops[i] = Math.floor(Math.random() * canvas.height);
     }
 
     function draw() {
-        // Saydam siyah arka plan (iz bırakan efekt)
-        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        // Parlaklığı artırmak için daha hafif iz bırak
+        ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Yazı rengi ve font
-        ctx.fillStyle = "#00ff00";
+        ctx.fillStyle = "#00ff66"; 
+        ctx.shadowColor = "#00ff66"; 
+        ctx.shadowBlur = 15;
         ctx.font = fontSize + "px monospace";
 
         for (let i = 0; i < drops.length; i++) {
             const text = letters.charAt(Math.floor(Math.random() * letters.length));
             ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-            // Belli bir şansa tekrar yukarı dönsün (random yağmur etkisi)
             if (drops[i] * fontSize > canvas.height && Math.random() > 0.95) {
-                drops[i] = 0 - Math.floor(Math.random() * 20); // başlamayı daha da rastgeleleştir
+                drops[i] = 0 - Math.floor(Math.random() * 20);
             }
 
             drops[i]++;
         }
     }
 
-    setInterval(draw, 33); // ~30 FPS
+    setInterval(draw, 33);
 </script>
 
 </body>
 </html>
-
