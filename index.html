@@ -27,16 +27,16 @@
         left: 0;
         width: 200%;
         height: 200%;
-        background: radial-gradient(circle, rgba(0, 255, 0, 0.12), transparent 70%);
-        animation: fogMove 12s infinite linear;
+        background: radial-gradient(circle, rgba(0,255,0,0.15), transparent 70%);
+        animation: fogMove 14s infinite linear;
         filter: blur(60px);
-        opacity: 0.5;
+        opacity: 0.45;
         z-index: 1;
     }
 
     @keyframes fogMove {
         0% { transform: translate(-20%, -10%); }
-        50% { transform: translate(10%, 20%); }
+        50% { transform: translate(15%, 20%); }
         100% { transform: translate(-20%, -10%); }
     }
 
@@ -48,46 +48,45 @@
         text-align: center;
         font-size: 80px;
         color: #00ff00;
-        text-shadow:
-            0 0 20px #00ff00,
-            0 0 40px #00ff00,
-            0 0 80px #00ff00;
+        text-shadow: 0 0 20px #00ff00, 0 0 40px #00ff00, 0 0 80px #00ff00;
         z-index: 3;
-        animation: moveUp 4s forwards, glitch 1.8s infinite;
+        animation: moveUp 4s forwards, glitch 2s infinite;
     }
 
     @keyframes moveUp {
         0% { top: 40%; opacity: 1; font-size: 80px; }
-        60% { top: 10%; opacity: 1; font-size: 40px; }
-        100% { top: 10%; opacity: 1; font-size: 40px; }
+        60% { top: 10%; opacity: 1; font-size: 40px;}
+        100% { top: 10%; opacity: 1; font-size: 40px;}
     }
 
     @keyframes glitch {
-        0% { text-shadow: 2px 0 red, -2px 0 blue; }
-        50% { text-shadow: -2px 0 red, 2px 0 blue; }
-        100% { text-shadow: 2px 0 red, -2px 0 blue; }
+        0% { text-shadow: 4px 0 red, -4px 0 blue; }
+        50% { text-shadow: -4px 0 red, 4px 0 blue; }
+        100% { text-shadow: 4px 0 red, -4px 0 blue; }
     }
 
-    /* --- TERMINAL GİRİŞ PANELİ --- */
+    /* --- ORTADA LOGIN PANELİ --- */
     #login-box {
         position: absolute;
-        top: 58%;
+        top: 55%;
         left: 50%;
-        transform: translateX(-50%);
+        transform: translate(-50%, -50%);
         width: 420px;
-        background: rgba(0,0,0,0.75);
+        background: rgba(0,0,0,0.7);
         border: 1px solid #00ff00;
         padding: 20px;
-        border-radius: 10px;
+        border-radius: 12px;
         box-shadow: 0 0 20px #00ff00;
-        z-index: 3;
+        z-index: 4;
         opacity: 0;
+
+        /* animasyon */ 
         animation: panelAppear 3s ease 4.2s forwards;
     }
 
     @keyframes panelAppear {
-        0% { opacity: 0; transform: translate(-50%, 20px); }
-        100% { opacity: 1; transform: translate(-50%, 0); }
+        from { opacity: 0; transform: translate(-50%, -30%); }
+        to   { opacity: 1; transform: translate(-50%, -50%); }
     }
 
     input {
@@ -137,12 +136,12 @@
 
 <canvas id="matrix"></canvas>
 <div class="fog"></div>
-<div class="fog" style="animation-duration: 18s; opacity: 0.3;"></div>
+<div class="fog" style="animation-duration: 20s; opacity: 0.25;"></div>
 
 <div id="welcome">Hoşgeldiniz</div>
 
 <div id="login-box">
-    <div class="typing">> Terminal erişimi için giriş yapın:</div>
+    <div class="typing">> Terminal erişimi için kullanıcı doğrulaması gerekli...</div>
 
     <br>
     > Kullanıcı adı:
@@ -157,7 +156,7 @@
 </div>
 
 <script>
-    // --- MATRIX YAĞMURU ---
+    /* MATRIX */
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
 
@@ -177,12 +176,11 @@
         ctx.font = fontSize + "px monospace";
 
         drops.forEach((y, i) => {
-            const text = letters.charAt(Math.floor(Math.random() * letters.length));
+            const text = letters[Math.floor(Math.random() * letters.length)];
             ctx.fillText(text, i * fontSize, y * fontSize);
 
-            if (y * fontSize > canvas.height && Math.random() > 0.975) {
+            if (y * fontSize > canvas.height && Math.random() > 0.975)
                 drops[i] = 0;
-            }
 
             drops[i]++;
         });
@@ -190,7 +188,7 @@
 
     setInterval(draw, 33);
 
-    // --- GİRİŞ SİSTEMİ ---
+    /* LOGIN */
     function login() {
         const user = document.getElementById("user").value.trim();
         const pass = document.getElementById("pass").value.trim();
@@ -201,10 +199,10 @@
 
         if (user === correctUser && pass === correctPass) {
             msg.style.color = "#00ff00";
-            msg.textContent = "> Giriş başarılı.\n> Sistem yükleniyor...";
+            msg.textContent = "> Giriş onaylandı.\n> Sistem yükleniyor...";
         } else {
             msg.style.color = "red";
-            msg.textContent = "> Hatalı giriş! Lütfen tekrar deneyin.";
+            msg.textContent = "> Erişim reddedildi! Hatalı bilgi.";
         }
     }
 </script>
