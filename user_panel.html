@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>TNOPS USER PANEL - TNOPS SYSTEM</title>
+
+<style>
+    body {
+        margin: 0;
+        background: #000;
+        color: #00ff99;
+        font-family: "Courier New", monospace;
+        overflow: hidden;
+    }
+
+    /* SOL MENÜ */
+    #sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 250px;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.85);
+        border-right: 2px solid #00ff99;
+        box-shadow: 0 0 20px #00ff99;
+        padding-top: 20px;
+    }
+
+    #sidebar h2 {
+        text-align: center;
+        font-size: 22px;
+        margin-bottom: 20px;
+        text-shadow: 0 0 10px #00ff99;
+    }
+
+    #sidebar h3 {
+        text-align: center;
+        font-size: 14px;
+        opacity: .7;
+        margin-top: -10px;
+    }
+
+    .menuBtn {
+        width: 90%;
+        margin: 8px auto;
+        padding: 12px;
+        font-size: 17px;
+        border: 1px solid #00ff99;
+        background: black;
+        color: #00ff99;
+        cursor: pointer;
+        display: block;
+        border-radius: 6px;
+        text-align: center;
+    }
+
+    .menuBtn:hover {
+        background: #00ff99;
+        color: black;
+    }
+
+    /* PANEL İÇERİK ALANI */
+    #content {
+        margin-left: 260px;
+        padding: 20px;
+    }
+
+    #card {
+        background: rgba(0,0,0,0.65);
+        border: 1px solid #00ff99;
+        border-radius: 10px;
+        padding: 20px;
+        width: 80%;
+        box-shadow: 0 0 20px #00ff99;
+    }
+
+    input {
+        width: 95%;
+        padding: 10px;
+        margin-top: 8px;
+        border: 1px solid #00ff99;
+        background: #000;
+        color: #00ff99;
+        border-radius: 6px;
+    }
+
+    button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        background: #00ff99;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 17px;
+    }
+
+    button:hover {
+        background: #00ffc4;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- SOL MENÜ -->
+<div id="sidebar">
+    <h2 id="userWelcome">Kullanıcı</h2>
+    <h3>(Üye)</h3>
+
+    <button class="menuBtn" onclick="showSection('home')">🏠 Ana Sayfa</button>
+    <button class="menuBtn" onclick="showSection('profile')">👤 Profil</button>
+    <button class="menuBtn" onclick="showSection('security')">🔐 Güvenlik</button>
+    <button class="menuBtn" onclick="showSection('theme')">🎨 Tema</button>
+    <button class="menuBtn" onclick="logout()">🚪 Çıkış Yap</button>
+</div>
+
+<!-- İÇERİK -->
+<div id="content">
+    <div id="card">
+        <div id="homeSection" class="section">
+            <h2>🔰 TNOPS USER PANEL</h2>
+            <p>Hoşgeldin <span id="nameDisplay"></span>.</p>
+            <p>Bu alan normal kullanıcıların erişebildiği paneldir.</p>
+        </div>
+
+        <div id="profileSection" class="section" style="display:none;">
+            <h2>👤 Profil Bilgileri</h2>
+            <p>Kullanıcı adı: <span id="profileName"></span></p>
+            <p>Hesap rolü: Kullanıcı</p>
+        </div>
+
+        <div id="securitySection" class="section" style="display:none;">
+            <h2>🔐 Şifre Değiştir</h2>
+
+            <input id="oldPass" type="password" placeholder="Eski şifre">
+            <input id="newPass" type="password" placeholder="Yeni şifre">
+            <button onclick="changePassword()">Şifreyi Değiştir</button>
+
+            <p id="securityMsg"></p>
+        </div>
+
+        <div id="themeSection" class="section" style="display:none;">
+            <h2>🎨 Tema Değiştir</h2>
+            <button onclick="changeTheme('default')">Yeşil Matrix</button>
+            <button onclick="changeTheme('red')">Kırmızı</button>
+            <button onclick="changeTheme('blue')">Mavi</button>
+            <p>Tema sadece bu hesapta geçerli olur.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ───────── KULLANICIYI YÜKLE ───────── */
+const db = JSON.parse(localStorage.getItem("users"));
+const currentUser = localStorage.getItem("currentUser");
+
+if(!currentUser || !db[currentUser]){
+    window.location.href = "index.html";
+}
+
+document.getElementById("userWelcome").innerText = currentUser;
+document.getElementById("nameDisplay").innerText = currentUser;
+document.getElementById("profileName").innerText = currentUser;
+
+/* ───────── PANEL GEÇİŞ SİSTEMİ ───────── */
+function showSection(sec){
+    document.querySelectorAll(".section").forEach(s => s.style.display="none");
+    document.getElementById(sec + "Section").style.display="block";
+}
+
+/* ───────── ŞİFRE DEĞİŞTİR ───────── */
+function changePassword(){
+    const oldP = document.getElementById("oldPass").value.trim();
+    const newP = document.getElementById("newPass").value.trim();
+
+    if(db[currentUser].password !== oldP){
+        document.getElementById("securityMsg").innerHTML = "<span style='color:red;'>Hatalı eski şifre!</span>";
+        return;
+    }
+
+    db[currentUser].password = newP;
+    localStorage.setItem("users", JSON.stringify(db));
+
+    document.getElementById("securityMsg").innerHTML = "<span style='color:#00ff99;'>Şifre güncellendi!</span>";
+}
+
+/* ───────── TEMA DEĞİŞTİR ───────── */
+function changeTheme(theme){
+    let color = "#00ff99";  
+
+    if(theme === "red") color = "#ff4d4d";
+    if(theme === "blue") color = "#4db8ff";
+
+    document.querySelectorAll("*").forEach(el=>{
+        if(el.style){
+            el.style.color = color;
+            if(el.tagName === "BUTTON") el.style.background = color;
+            if(el.tagName === "INPUT") el.style.borderColor = color;
+        }
+    });
+}
+
+/* ───────── ÇIKIŞ ───────── */
+function logout(){
+    db[currentUser].online = false;
+    localStorage.setItem("users", JSON.stringify(db));
+    localStorage.removeItem("currentUser");
+    window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>
