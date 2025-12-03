@@ -3,302 +3,380 @@
 <head>
 <meta charset="UTF-8">
 <title>TNOPS SYSTEM</title>
+
 <style>
-
+/* ---------------------------------------------------
+   GENEL MATRIX TEMA
+--------------------------------------------------- */
 body {
-    margin:0;
-    background:#0d0d0d;
-    font-family: Arial;
-    color:white;
+    margin: 0;
+    overflow: hidden;
+    background: black;
+    font-family: "Courier New", monospace;
+}
+canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
 }
 
-.centerBox {
-    width:350px;
-    margin:auto;
-    margin-top:120px;
-    background:#1a1a1a;
-    padding:25px;
-    border-radius:12px;
-    text-align:center;
-    box-shadow:0 0 15px #000;
+/* ---------------------------------------------------
+   HOŞGELDİNİZ ANİMASYON
+--------------------------------------------------- */
+#welcome {
+    position: absolute;
+    top: 40%;
+    width: 100%;
+    text-align: center;
+    font-size: 80px;
+    color: #00ff99;
+    text-shadow: 0 0 20px #00ff99, 0 0 40px #00ff99;
+    opacity: 1;
+    animation: glitch 3s infinite, moveUp 4s forwards;
+    z-index: 5;
 }
+
+@keyframes glitch {
+    0%,100% { transform: translate(0); }
+    20% { transform: translate(-3px,2px); }
+    40% { transform: translate(3px,-2px); }
+    60% { transform: translate(-2px,1px); }
+    80% { transform: translate(2px,-1px); }
+}
+
+@keyframes moveUp {
+    0% { top: 40%; font-size: 80px; }
+    100% { top: 10%; font-size: 40px; }
+}
+
+/* ---------------------------------------------------
+   GİRİŞ KUTUSU
+--------------------------------------------------- */
+#loginBox {
+    position: absolute;
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 330px;
+    padding: 25px;
+    background: rgba(0,0,0,0.8);
+    border: 2px solid #00ff99;
+    box-shadow: 0 0 20px #00ff99;
+    border-radius: 12px;
+    text-align: center;
+    opacity: 0;
+    animation: fadeIn 3s forwards;
+    animation-delay: 3.2s;
+}
+
+@keyframes fadeIn { to { opacity: 1; } }
 
 input {
-    width:90%;
-    padding:10px;
-    margin:8px 0;
-    border:none;
-    border-radius:8px;
-    background:#222;
-    color:white;
-    font-size:16px;
+    width: 90%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #00ff99;
+    background: black;
+    color: #00ff99;
+    border-radius: 5px;
+    font-size: 17px;
 }
 
 button {
-    width:95%;
-    padding:12px;
-    border:none;
-    background:#0084ff;
-    color:white;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:16px;
-    margin-top:10px;
+    width: 100%;
+    padding: 10px;
+    background: #00ff99;
+    border: none;
+    color: black;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    box-shadow: 0 0 10px #00ff99;
 }
-button:hover {
-    background:#0a6dd9;
+button:hover { background: #00ffc9; }
+
+#error {
+    color: red;
+    margin-top: 8px;
+    display: none;
 }
 
-/* Panel Ortak Tasarım */
-#panel {
-    display:flex;
+/* ---------------------------------------------------
+   PANEL GÖVDELERİ (varsayılan kapalı)
+--------------------------------------------------- */
+#adminPanel, #userPanel {
+    display: none;
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    color: #00ff99;
+    padding-left: 260px;
 }
 
-/* Sol Menü */
-#menu {
-    width:230px;
-    background:#111;
-    padding-top:20px;
-    height:100vh;
-    box-shadow:0 0 10px #000;
-    display:none;
+/* ---------------------------------------------------
+   SOL RGB KATEGORİ MENÜ
+--------------------------------------------------- */
+#sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 230px;
+    height: 100%;
+    background: rgba(0,0,0,0.55);
+    border-right: 3px solid transparent;
+    padding-top: 20px;
+    z-index: 50;
+
+    /* RGB animasyon */
+    animation: rgbBorder 3s linear infinite;
+}
+@keyframes rgbBorder {
+    0% { box-shadow: 0 0 12px red; border-color: red; }
+    33% { box-shadow: 0 0 12px lime; border-color: lime; }
+    66% { box-shadow: 0 0 12px cyan; border-color: cyan; }
+    100% { box-shadow: 0 0 12px red; border-color: red; }
 }
 
-.menuTitle {
-    font-size:18px;
-    font-weight:bold;
-    margin-bottom:20px;
+.sidebarTitle {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #00ff99;
 }
 
-.menuItem {
-    padding:15px;
-    text-align:left;
-    padding-left:25px;
-    font-size:16px;
-    cursor:pointer;
-    background:#111;
+.menuBtn {
+    width: 90%;
+    padding: 12px;
+    margin: 10px auto;
+    background: black;
+    color: #00ff99;
+    border: 1px solid #00ff99;
+    border-radius: 6px;
+    display: block;
+    cursor: pointer;
+    text-align: center;
 }
-.menuItem:hover {
-    background:#1a1a1a;
-}
-
-/* Panel İçerik */
-#content {
-    padding:30px;
-    flex-grow:1;
-    display:none;
+.menuBtn:hover {
+    background: #00ff99;
+    color: black;
 }
 
-.card {
-    background:#1a1a1a;
-    padding:20px;
-    border-radius:10px;
-    width:80%;
-    margin-top:20px;
+/* ---------------------------------------------------
+   PANEL İÇERİK
+--------------------------------------------------- */
+.panelBox {
+    margin-top: 50px;
+    background: rgba(0,0,0,0.75);
+    padding: 25px;
+    width: 70%;
+    border: 1px solid #00ff99;
+    box-shadow: 0 0 15px #00ff99;
 }
-
-input.small {
-    width:60%;
-    padding:8px;
-}
-
-.userBox {
-    padding:10px;
-    margin-top:10px;
-    background:#222;
-    border-radius:6px;
-}
-
 </style>
 </head>
+
 <body>
 
-<!-- LOGIN EKRANI -->
-<div id="loginBox" class="centerBox">
-    <h1>TNOPS SYSTEM</h1>
-    <p>Giriş Yap</p>
-    <input id="username" placeholder="Kullanıcı Adı">
+<!-- MATRIX BACKGROUND -->
+<canvas id="matrix"></canvas>
+
+<!-- HOŞGELDİNİZ -->
+<div id="welcome">TNOPS SYSTEM</div>
+
+<!-- GİRİŞ KUTUSU -->
+<div id="loginBox">
+    <input id="username" placeholder="Kullanıcı adı">
     <input id="password" type="password" placeholder="Şifre">
-    <button onclick="login()">Giriş</button>
+    <button onclick="login()">Giriş Yap</button>
+    <div id="error">Hatalı giriş!</div>
 </div>
 
-<!-- PANEL (ADMIN + USER) -->
-<div id="panel">
+<!-- --------------------------------------------------
+     SOL KATEGORİ MENÜ (Başta gizli)
+-------------------------------------------------- -->
+<div id="sidebar" style="display:none;">
+    <div class="sidebarTitle" id="sidebarUserInfo">Kullanıcı (rol)</div>
 
-    <!-- SOL MENÜ -->
-    <div id="menu">
-        <div class="menuTitle" id="welcomeText">Hoşgeldin</div>
-
-        <!-- Admin menüsü -->
-        <div id="adminMenu" style="display:none;">
-            <div class="menuItem" onclick="showPage('adminUsers')">Kullanıcı Yönetimi</div>
-            <div class="menuItem" onclick="showPage('adminRoles')">Rol Değiştirme</div>
-        </div>
-
-        <!-- User menüsü -->
-        <div id="userMenu" style="display:none;">
-            <div class="menuItem" onclick="showPage('userProfile')">Profil</div>
-        </div>
-
-        <div class="menuItem" onclick="logout()">Çıkış Yap</div>
+    <div id="adminButtons" style="display:none;">
+        <div class="menuBtn" onclick="showAdminBox('manageUsers')">Kullanıcı Yönetimi</div>
     </div>
 
-    <!-- PANEL İÇERİK -->
-    <div id="content">
-
-        <!-- ADMIN → Kullanıcı Yönetimi -->
-        <div id="adminUsers" class="page" style="display:none;">
-            <h2>Kullanıcı Yönetimi</h2>
-
-            <div class="card">
-                <h3>Kullanıcı Ekle</h3>
-                <input id="newUser" class="small" placeholder="Yeni kullanıcı adı">
-                <input id="newPass" class="small" placeholder="Şifre">
-                <button style="width:200px;" onclick="addUser()">Ekle</button>
-            </div>
-
-            <div class="card">
-                <h3>Mevcut Kullanıcılar</h3>
-                <div id="userList"></div>
-            </div>
+    <div id="userButtons" style="display:none;">
+        <div class="menuBtn" onclick="window.open('https://github.com/tnops/tnop-bomber','_blank')">
+            TNOP-BOMBER
         </div>
+    </div>
 
-        <!-- ADMIN → Rol değiştirme -->
-        <div id="adminRoles" class="page" style="display:none;">
-            <h2>Rol Yönetimi</h2>
+    <div class="menuBtn" onclick="logout()">Çıkış Yap</div>
+</div>
 
-            <div class="card">
-                <div id="roleList"></div>
-            </div>
-        </div>
+<!-- --------------------------------------------------
+     ADMIN PANELİ
+-------------------------------------------------- -->
+<div id="adminPanel">
+    <div class="panelBox" id="manageUsers" style="display:none;">
+        <h2>Kullanıcı Yönetimi</h2>
 
-        <!-- USER PANELİ -->
-        <div id="userProfile" class="page" style="display:none;">
-            <h2>Profil Bilgileri</h2>
-            <div class="card">
-                <p><b>Kullanıcı Adı:</b> <span id="profileName"></span></p>
-                <p><b>Rol:</b> <span id="profileRole"></span></p>
-                <p><b>Durum:</b> Online</p>
-            </div>
-        </div>
+        <h3>Yeni Kullanıcı Ekle</h3>
+        <input id="newUser" placeholder="Kullanıcı adı">
+        <input id="newPass" placeholder="Şifre">
+        <select id="newRole">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+        </select>
+        <button onclick="addUser()">Ekle</button>
 
+        <h3>Mevcut Kullanıcılar</h3>
+        <div id="userList"></div>
+    </div>
+</div>
+
+<!-- --------------------------------------------------
+     USER PANELİ
+-------------------------------------------------- -->
+<div id="userPanel">
+    <div class="panelBox">
+        <h2>Hoşgeldin <span id="userNameLabel"></span></h2>
+        <p>Soldaki menüden işlem seçebilirsin.</p>
     </div>
 </div>
 
 <script>
-// Sözde veritabanı
-let users = {
-    "admin": { password: "1234", role: "admin" },
-    "deneme": { password: "1234", role: "user" }
-};
-
-let activeUser = null;
-
-// Giriş Sistemi
-function login() {
-    let u = username.value.trim();
-    let p = password.value.trim();
-
-    if (!users[u] || users[u].password !== p) {
-        alert("Hatalı giriş!");
-        return;
-    }
-
-    activeUser = u;
-    openPanel();
-}
-
-function openPanel() {
-    loginBox.style.display = "none";
-    panel.style.display = "flex";
-    menu.style.display = "block";
-    content.style.display = "block";
-
-    welcomeText.innerText = activeUser + " (" + users[activeUser].role + ")";
-
-    if (users[activeUser].role === "admin") {
-        adminMenu.style.display = "block";
-        userMenu.style.display = "none";
-        showPage("adminUsers");
-        refreshUsers();
-        refreshRoles();
-    } else {
-        adminMenu.style.display = "none";
-        userMenu.style.display = "block";
-        showPage("userProfile");
-        profileName.innerText = activeUser;
-        profileRole.innerText = users[activeUser].role;
-    }
-}
-
-function showPage(id) {
-    document.querySelectorAll(".page").forEach(p => p.style.display = "none");
-    document.getElementById(id).style.display = "block";
-}
-
-// Kullanıcı ekle
-function addUser() {
-    let u = newUser.value.trim();
-    let p = newPass.value.trim();
-
-    if (!u || !p) { alert("Boş bırakılamaz."); return; }
-    if (users[u]) { alert("Bu kullanıcı zaten var."); return; }
-
-    users[u] = { password: p, role: "user" };
-    newUser.value = "";
-    newPass.value = "";
-
-    refreshUsers();
-    refreshRoles();
-}
-
-// Kullanıcı listele
-function refreshUsers() {
-    userList.innerHTML = "";
-    Object.keys(users).forEach(u => {
-        userList.innerHTML += `
-            <div class="userBox">
-                ${u} (${users[u].role})
-                <button style="width:80px; float:right;" onclick="deleteUser('${u}')">Sil</button>
-            </div>
-        `;
+/* ------------------------------------------------------
+   MATRIX EFFECT
+------------------------------------------------------ */
+const canvas=document.getElementById("matrix");
+const ctx=canvas.getContext("2d");
+canvas.width=innerWidth; canvas.height=innerHeight;
+const letters="TNOPS01";
+const font=16;
+const cols=canvas.width/font;
+const drops=Array(Math.floor(cols)).fill(1);
+function draw(){
+    ctx.fillStyle="rgba(0,0,0,0.05)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="#00ff99";
+    ctx.font=font+"px monospace";
+    drops.forEach((y,i)=>{
+        const text=letters[Math.floor(Math.random()*letters.length)];
+        ctx.fillText(text,i*font,y*font);
+        if(y*font>canvas.height && Math.random()>0.975) drops[i]=0;
+        drops[i]++;
     });
 }
+setInterval(draw,33);
 
-// Kullanıcı sil
-function deleteUser(u) {
-    if (u === "admin") { alert("Admin silinemez!"); return; }
-    delete users[u];
-    refreshUsers();
-    refreshRoles();
+/* ------------------------------------------------------
+   LOCAL DB KURULUM
+------------------------------------------------------ */
+if(!localStorage.getItem("users")){
+    const db={
+        "admin":{username:"admin",password:"1234",role:"admin",online:false},
+        "test":{username:"test",password:"1234",role:"user",online:false}
+    };
+    localStorage.setItem("users",JSON.stringify(db));
 }
 
-// Rol listesi
-function refreshRoles() {
-    roleList.innerHTML = "";
-    Object.keys(users).forEach(u => {
-        roleList.innerHTML += `
-            <div class="userBox">
-                ${u} 
-                <select onchange="changeRole('${u}', this.value)">
-                    <option value="user" ${users[u].role==="user"?"selected":""}>User</option>
-                    <option value="admin" ${users[u].role==="admin"?"selected":""}>Admin</option>
-                </select>
+/* ------------------------------------------------------
+   GİRİŞ
+------------------------------------------------------ */
+function login(){
+    const u=document.getElementById("username").value.trim();
+    const p=document.getElementById("password").value.trim();
+
+    const db=JSON.parse(localStorage.getItem("users"));
+
+    if(db[u] && db[u].password===p){
+        db[u].online=true;
+        localStorage.setItem("users",JSON.stringify(db));
+        localStorage.setItem("current",u);
+
+        document.getElementById("loginBox").style.display="none";
+        document.getElementById("welcome").style.display="none";
+        document.getElementById("sidebar").style.display="block";
+
+        const role=db[u].role;
+        document.getElementById("sidebarUserInfo").innerHTML=
+            u+" ("+role+")";
+
+        if(role==="admin"){
+            document.getElementById("adminPanel").style.display="block";
+            document.getElementById("adminButtons").style.display="block";
+        } else {
+            document.getElementById("userPanel").style.display="block";
+            document.getElementById("userButtons").style.display="block";
+            document.getElementById("userNameLabel").innerText=u;
+        }
+    }
+    else{
+        document.getElementById("error").style.display="block";
+    }
+}
+
+/* ------------------------------------------------------
+   ADMIN KULLANICI YÖNETİMİ
+------------------------------------------------------ */
+
+function showAdminBox(id){
+    document.getElementById("manageUsers").style.display="none";
+    document.getElementById(id).style.display="block";
+    refreshUserList();
+}
+
+function refreshUserList(){
+    const db=JSON.parse(localStorage.getItem("users"));
+    let html="";
+    for(let u in db){
+        html += `
+            <div style="margin:10px 0;padding:10px;border:1px solid #00ff99">
+                <b>${u}</b> (${db[u].role})
+                <br>
+                <button onclick="delUser('${u}')">Sil</button>
+                <button onclick="toggleRole('${u}')">Rol Değiştir</button>
             </div>
         `;
-    });
+    }
+    document.getElementById("userList").innerHTML=html;
 }
 
-function changeRole(user, role) {
-    users[user].role = role;
-    refreshUsers();
+function addUser(){
+    const u=document.getElementById("newUser").value.trim();
+    const p=document.getElementById("newPass").value.trim();
+    const r=document.getElementById("newRole").value;
+
+    const db=JSON.parse(localStorage.getItem("users"));
+    if(!u || !p) return;
+
+    db[u]={username:u,password:p,role:r,online:false};
+    localStorage.setItem("users",JSON.stringify(db));
+    refreshUserList();
 }
 
-// Çıkış
-function logout() {
+function delUser(u){
+    const db=JSON.parse(localStorage.getItem("users"));
+    delete db[u];
+    localStorage.setItem("users",JSON.stringify(db));
+    refreshUserList();
+}
+
+function toggleRole(u){
+    const db=JSON.parse(localStorage.getItem("users"));
+    db[u].role = db[u].role==="admin" ? "user" : "admin";
+    localStorage.setItem("users",JSON.stringify(db));
+    refreshUserList();
+}
+
+/* ------------------------------------------------------
+   ÇIKIŞ
+------------------------------------------------------ */
+function logout(){
+    const db=JSON.parse(localStorage.getItem("users"));
+    const u=localStorage.getItem("current");
+
+    if(db[u]) db[u].online=false;
+
+    localStorage.setItem("users",JSON.stringify(db));
     location.reload();
 }
-
 </script>
 
 </body>
