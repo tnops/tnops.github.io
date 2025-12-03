@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>TNOPS SYSTEM - Admin Panel</title>
+
+<style>
+    body {
+        margin: 0;
+        background: #0a0a0a;
+        color: white;
+        font-family: 'Courier New', monospace;
+        display: flex;
+    }
+
+    /* Sol Menü */
+    #sidebar {
+        width: 260px;
+        height: 100vh;
+        background: #000;
+        border-right: 2px solid #00ff99;
+        padding: 20px;
+        box-shadow: 0 0 20px #00ff99;
+    }
+
+    #sidebar h2 {
+        text-align: center;
+        color: #00ff99;
+        margin-bottom: 25px;
+        text-shadow: 0 0 10px #00ff99;
+    }
+
+    .menu-item {
+        padding: 14px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        background: #111;
+        color: #00ff99;
+        border-radius: 6px;
+        transition: 0.2s;
+        border: 1px solid #00ff99;
+    }
+
+    .menu-item:hover {
+        background: #00ff99;
+        color: #000;
+    }
+
+    /* Sağ Ana İçerik */
+    #content {
+        flex: 1;
+        padding: 20px;
+    }
+
+    h1 {
+        color: #00ff99;
+        text-shadow: 0 0 10px #00ff99;
+    }
+
+    input, select {
+        padding: 10px;
+        width: 250px;
+        margin: 5px 0;
+        background: #000;
+        border: 1px solid #00ff99;
+        border-radius: 5px;
+        color: #00ff99;
+    }
+
+    button {
+        padding: 10px 20px;
+        background: #00ff99;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    button:hover { background: #00ffaa; }
+
+    table {
+        width: 90%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #00ff99;
+        padding: 10px;
+        text-align: center;
+    }
+
+    th {
+        background: #00ff99;
+        color: black;
+    }
+
+    .danger {
+        background: red;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+    .danger:hover { background: #ff5555; }
+
+    .role-btn {
+        background: #ffaa00;
+    }
+
+</style>
+</head>
+
+<body>
+
+<!-- Sol Menü -->
+<div id="sidebar">
+    <h2 id="userInfo"></h2>
+
+    <div class="menu-item" onclick="showPage('dashboard')">📊 Dashboard</div>
+    <div class="menu-item" onclick="showPage('users')">👥 Kullanıcı Yönetimi</div>
+    <div class="menu-item" onclick="showPage('logs')">📜 Log Kayıtları</div>
+    <div class="menu-item" onclick="showPage('settings')">⚙ Sistem Ayarları</div>
+    <div class="menu-item" onclick="showPage('security')">🔒 Güvenlik</div>
+    <div class="menu-item" style="background:#900" onclick="logout()">🚪 Çıkış Yap</div>
+</div>
+
+<!-- Sağ İçerik -->
+<div id="content">
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="page">
+        <h1>📊 Dashboard</h1>
+        <p><b>Toplam Kullanıcı:</b> <span id="totalUsers"></span></p>
+        <p><b>Çevrimiçi:</b> <span id="onlineUsers"></span></p>
+        <p><b>Admin Sayısı:</b> <span id="adminCount"></span></p>
+        <p><b>User Sayısı:</b> <span id="userCount"></span></p>
+    </div>
+
+    <!-- Kullanıcı Yönetimi -->
+    <div id="users" class="page" style="display:none;">
+        <h1>👥 Kullanıcı Yönetimi</h1>
+
+        <h3>Yeni Kullanıcı Ekle</h3>
+        <input id="newUser" placeholder="Kullanıcı adı">
+        <input id="newPass" placeholder="Şifre">
+        <select id="newRole">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+        </select>
+        <button onclick="addUser()">Ekle</button>
+
+        <h3>Kullanıcı Listesi</h3>
+        <table id="usersTable"></table>
+    </div>
+
+    <!-- Log Kayıtları -->
+    <div id="logs" class="page" style="display:none;">
+        <h1>📜 Log Kayıtları</h1>
+        <pre id="logBox" style="background:black; color:#00ff99; padding:15px; border:1px solid #00ff99; height:300px; overflow-y:auto;"></pre>
+    </div>
+
+    <!-- Sistem Ayarları -->
+    <div id="settings" class="page" style="display:none;">
+        <h1>⚙ Sistem Ayarları</h1>
+        <button onclick="toggleTheme()">Tema Değiştir (Dark / Neon)</button>
+    </div>
+
+    <!-- Güvenlik -->
+    <div id="security" class="page" style="display:none;">
+        <h1>🔒 Güvenlik Ayarları</h1>
+        <input id="newPassword" placeholder="Yeni Şifre">
+        <button onclick="changePassword()">Şifreyi Güncelle</button>
+    </div>
+
+</div>
+
+<script>
+/* ---------------- Kullanıcı Bilgisi ---------------- */
+const currentUser = localStorage.getItem("currentUser");
+let db = JSON.parse(localStorage.getItem("users"));
+
+if(!currentUser || db[currentUser].role !== "admin"){
+    alert("Bu sayfaya erişim yetkiniz yok!");
+    window.location.href = "index.html";
+}
+
+document.getElementById("userInfo").innerHTML =
+    currentUser + " <br>(Admin)";
+
+/* ---------------- Sayfa Geçiş Sistemi ---------------- */
+function showPage(page){
+    document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+    document.getElementById(page).style.display = "block";
+    if(page === "users") loadUsers();
+    if(page === "dashboard") loadDashboard();
+    if(page === "logs") loadLogs();
+}
+
+/* ---------------- Dashboard ---------------- */
+function loadDashboard(){
+    db = JSON.parse(localStorage.getItem("users"));
+
+    let total = Object.keys(db).length;
+    let online = Object.values(db).filter(x => x.online).length;
+    let admins = Object.values(db).filter(x => x.role === "admin").length;
+    let users = total - admins;
+
+    document.getElementById("totalUsers").innerText = total;
+    document.getElementById("onlineUsers").innerText = online;
+    document.getElementById("adminCount").innerText = admins;
+    document.getElementById("userCount").innerText = users;
+}
+
+/* ---------------- Kullanıcı Listesi ---------------- */
+function loadUsers(){
+    db = JSON.parse(localStorage.getItem("users"));
+    let html = `
+        <tr>
+            <th>Kullanıcı</th>
+            <th>Rol</th>
+            <th>Durum</th>
+            <th>İşlem</th>
+        </tr>
+    `;
+
+    for(let u in db){
+        html += `
+            <tr>
+                <td>${u}</td>
+                <td>${db[u].role}</td>
+                <td>${db[u].online ? "🟢 Online" : "⚪ Offline"}</td>
+                <td>
+                    <button class="role-btn" onclick="changeRole('${u}')">Rol Değiştir</button>
+                    <button class="danger" onclick="deleteUser('${u}')">Sil</button>
+                </td>
+            </tr>
+        `;
+    }
+    document.getElementById("usersTable").innerHTML = html;
+}
+
+/* ---------------- Kullanıcı Ekle ---------------- */
+function addUser(){
+    const user = document.getElementById("newUser").value;
+    const pass = document.getElementById("newPass").value;
+    const role = document.getElementById("newRole").value;
+
+    if(db[user]) return alert("Bu kullanıcı zaten var!");
+
+    db[user] = { username:user, password:pass, role:role, online:false };
+    log(`Yeni kullanıcı eklendi: ${user} (${role})`);
+
+    localStorage.setItem("users", JSON.stringify(db));
+    loadUsers();
+}
+
+/* ---------------- Kullanıcı Sil ---------------- */
+function deleteUser(u){
+    if(u === currentUser){
+        return alert("Kendini silemezsin!");
+    }
+
+    delete db[u];
+    log(`Kullanıcı silindi: ${u}`);
+
+    localStorage.setItem("users", JSON.stringify(db));
+    loadUsers();
+}
+
+/* ---------------- Rol Değiştir ---------------- */
+function changeRole(u){
+    db[u].role = db[u].role === "admin" ? "user" : "admin";
+    log(`Rol değiştirildi: ${u} → ${db[u].role}`);
+
+    localStorage.setItem("users", JSON.stringify(db));
+    loadUsers();
+}
+
+/* ---------------- Log Sistemi ---------------- */
+function log(text){
+    let logs = localStorage.getItem("logs") || "";
+    logs += new Date().toLocaleString() + " → " + text + "\n";
+    localStorage.setItem("logs", logs);
+}
+
+function loadLogs(){
+    document.getElementById("logBox").innerText =
+        localStorage.getItem("logs") || "Kayıt yok.";
+}
+
+/* ---------------- Tema ---------------- */
+let neon = false;
+
+function toggleTheme(){
+    neon = !neon;
+    document.body.style.background = neon ? "#001a00" : "#0a0a0a";
+    alert("Tema değiştirildi!");
+}
+
+/* ---------------- Şifre Değiştir ---------------- */
+function changePassword(){
+    const newPass = document.getElementById("newPassword").value;
+
+    if(newPass.length < 3) return alert("Şifre çok kısa!");
+
+    db[currentUser].password = newPass;
+    log(`Admin şifre değiştirdi: ${currentUser}`);
+
+    localStorage.setItem("users", JSON.stringify(db));
+    alert("Şifre güncellendi!");
+}
+
+/* ---------------- Çıkış ---------------- */
+function logout(){
+    db[currentUser].online = false;
+    localStorage.setItem("users", JSON.stringify(db));
+    window.location.href = "index.html";
+}
+
+</script>
+
+</body>
+</html>
