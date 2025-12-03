@@ -2,209 +2,181 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Matrix Login</title>
+<title>TNOPS SYSTEM</title>
 
 <style>
     body {
         margin: 0;
         overflow: hidden;
         background: black;
-        font-family: "Courier New", monospace;
-        color: #00ff00;
+        font-family: 'Courier New', monospace;
     }
 
     canvas {
-        position: absolute;
-        top: 0;
-        left: 0;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
         z-index: 0;
     }
 
-    /* --- SİS EFEKTİ --- */
-    .fog {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(0,255,0,0.15), transparent 70%);
-        animation: fogMove 14s infinite linear;
-        filter: blur(60px);
-        opacity: 0.45;
-        z-index: 1;
-    }
-
-    @keyframes fogMove {
-        0% { transform: translate(-20%, -10%); }
-        50% { transform: translate(15%, 20%); }
-        100% { transform: translate(-20%, -10%); }
-    }
-
-    /* --- GİRİŞ YAZISI GLITCH + NEON --- */
+    /* HOŞGELDİNİZ */
     #welcome {
         position: absolute;
-        width: 100%;
         top: 40%;
+        width: 100%;
         text-align: center;
         font-size: 80px;
-        color: #00ff00;
-        text-shadow: 0 0 20px #00ff00, 0 0 40px #00ff00, 0 0 80px #00ff00;
-        z-index: 3;
-        animation: moveUp 4s forwards, glitch 2s infinite;
+        color: #00ff99;
+        text-shadow: 0 0 20px #00ff99, 0 0 40px #00ff99, 0 0 80px #00ff99;
+        opacity: 1;
+        animation: glitch 3s infinite, moveUp 4s forwards;
+        z-index: 5;
     }
 
-    @keyframes moveUp {
-        0% { top: 40%; opacity: 1; font-size: 80px; }
-        60% { top: 10%; opacity: 1; font-size: 40px;}
-        100% { top: 10%; opacity: 1; font-size: 40px;}
-    }
-
+    /* Glitch */
     @keyframes glitch {
-        0% { text-shadow: 4px 0 red, -4px 0 blue; }
-        50% { text-shadow: -4px 0 red, 4px 0 blue; }
-        100% { text-shadow: 4px 0 red, -4px 0 blue; }
+        0%, 100% { transform: translate(0); }
+        20% { transform: translate(-3px, 2px); }
+        40% { transform: translate(3px, -2px); }
+        60% { transform: translate(-2px, 1px); }
+        80% { transform: translate(2px, -1px); }
     }
 
-    /* --- ORTADA LOGIN PANELİ --- */
-    #login-box {
+    /* Yukarı kayma */
+    @keyframes moveUp {
+        0% { top: 40%; font-size: 80px; }
+        100% { top: 10%; font-size: 45px; }
+    }
+
+    /* Giriş kutusu */
+    #loginBox {
         position: absolute;
-        top: 55%;
+        top: 60%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 420px;
-        background: rgba(0,0,0,0.7);
-        border: 1px solid #00ff00;
-        padding: 20px;
+        width: 320px;
+        padding: 25px;
+        background: rgba(0,0,0,0.75);
+        border: 2px solid #00ff99;
         border-radius: 12px;
-        box-shadow: 0 0 20px #00ff00;
-        z-index: 4;
+        box-shadow: 0 0 20px #00ff99;
+        text-align: center;
         opacity: 0;
-
-        /* animasyon */ 
-        animation: panelAppear 3s ease 4.2s forwards;
+        z-index: 10;
+        animation: fadeIn 3s forwards;
+        animation-delay: 2.8s;
     }
 
-    @keyframes panelAppear {
-        from { opacity: 0; transform: translate(-50%, -30%); }
-        to   { opacity: 1; transform: translate(-50%, -50%); }
-    }
+    @keyframes fadeIn { to { opacity:1; } }
 
     input {
-        width: 100%;
-        background: black;
-        border: 1px solid #00ff00;
-        color: #00ff00;
-        padding: 10px;
-        font-size: 18px;
+        width: 90%;
+        padding: 12px;
         margin: 10px 0;
+        border: 1px solid #00ff99;
+        background: black;
+        color: #00ff99;
+        font-size: 17px;
+        border-radius: 5px;
     }
 
     button {
         width: 100%;
-        background: #00ff00;
-        color: black;
         padding: 10px;
-        font-size: 20px;
-        border: none;
-        cursor: pointer;
-    }
-
-    #terminal-msg {
-        margin-top: 10px;
         font-size: 18px;
-        min-height: 22px;
-        white-space: pre;
+        background: #00ff99;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 0 10px #00ff99;
     }
 
-    /* typing effect */
-    .typing {
-        overflow: hidden;
-        border-right: 3px solid #00ff00;
-        white-space: nowrap;
-        width: 0;
-        animation: typing 3s steps(40) forwards 4.4s;
-    }
+    button:hover { background:#00ffc9; }
 
-    @keyframes typing {
-        from { width: 0; }
-        to { width: 100%; }
+    /* Hata mesajı */
+    #error {
+        margin-top: 10px;
+        color: red;
+        font-size: 15px;
+        display: none;
     }
-
 </style>
 </head>
+
 <body>
 
 <canvas id="matrix"></canvas>
-<div class="fog"></div>
-<div class="fog" style="animation-duration: 20s; opacity: 0.25;"></div>
 
-<div id="welcome">Hoşgeldiniz</div>
+<div id="welcome">TNOPS SYSTEM</div>
 
-<div id="login-box">
-    <div class="typing">> Terminal erişimi için kullanıcı doğrulaması gerekli...</div>
-
-    <br>
-    > Kullanıcı adı:
-    <input type="text" id="user">
-
-    > Şifre:
-    <input type="password" id="pass">
-
+<div id="loginBox">
+    <input id="username" placeholder="Kullanıcı adı">
+    <input id="password" type="password" placeholder="Şifre">
     <button onclick="login()">Giriş Yap</button>
-
-    <div id="terminal-msg"></div>
+    <div id="error">Hatalı giriş!</div>
 </div>
 
 <script>
-    /* MATRIX */
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
+/* ─────────────── MATRIX EFEKTİ ─────────────── */
+const canvas=document.getElementById("matrix");
+const ctx=canvas.getContext("2d");
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
 
-    const letters = "01";
-    const fontSize = 16;
-    const columns = canvas.width / fontSize;
-    const drops = Array(Math.floor(columns)).fill(1);
+const letters="TNOPS01";
+const fontSize=16;
+const columns=canvas.width/fontSize;
+const drops=Array(Math.floor(columns)).fill(1);
 
-    function draw() {
-        ctx.fillStyle = "rgba(0,0,0,0.05)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+function drawMatrix(){
+    ctx.fillStyle="rgba(0,0,0,0.05)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
 
-        ctx.fillStyle = "#00ff00";
-        ctx.font = fontSize + "px monospace";
+    ctx.fillStyle="#00ff99";
+    ctx.font=fontSize+"px monospace";
 
-        drops.forEach((y, i) => {
-            const text = letters[Math.floor(Math.random() * letters.length)];
-            ctx.fillText(text, i * fontSize, y * fontSize);
+    drops.forEach((y,i)=>{
+        const text=letters.charAt(Math.floor(Math.random()*letters.length));
+        ctx.fillText(text,i*fontSize,y*fontSize);
 
-            if (y * fontSize > canvas.height && Math.random() > 0.975)
-                drops[i] = 0;
+        if(y*fontSize>canvas.height && Math.random()>0.975) drops[i]=0;
+        drops[i]++;
+    });
+}
+setInterval(drawMatrix,35);
 
-            drops[i]++;
-        });
-    }
+/* ─────────────── VERİ TABANI (localStorage) ─────────────── */
+if(!localStorage.getItem("users")){
+    const defaultDB = {
+        "admin": { username:"admin", password:"1234", role:"admin", online:false },
+        "test":  { username:"test",  password:"1234", role:"user",  online:false }
+    };
+    localStorage.setItem("users", JSON.stringify(defaultDB));
+}
 
-    setInterval(draw, 33);
+/* ─────────────── GİRİŞ SİSTEMİ ─────────────── */
+function login(){
+    const user=document.getElementById("username").value.trim();
+    const pass=document.getElementById("password").value.trim();
 
-    /* LOGIN */
-    function login() {
-        const user = document.getElementById("user").value.trim();
-        const pass = document.getElementById("pass").value.trim();
-        const msg = document.getElementById("terminal-msg");
+    const db = JSON.parse(localStorage.getItem("users"));
 
-        const correctUser = "admin";
-        const correctPass = "1234";
+    if(db[user] && db[user].password === pass){
+        db[user].online = true;
+        localStorage.setItem("currentUser", user);
+        localStorage.setItem("users", JSON.stringify(db));
 
-        if (user === correctUser && pass === correctPass) {
-            msg.style.color = "#00ff00";
-            msg.textContent = "> Giriş onaylandı.\n> Sistem yükleniyor...";
+        /* Admin mi User mı kontrol */
+        if(db[user].role === "admin"){
+            window.location.href = "admin_panel.html";   // PARÇA 2 bunu karşılayacak
         } else {
-            msg.style.color = "red";
-            msg.textContent = "> Erişim reddedildi! Hatalı bilgi.";
+            window.location.href = "user_panel.html";    // PARÇA 2 bunu karşılayacak
         }
+    } else {
+        document.getElementById("error").style.display = "block";
     }
+}
 </script>
 
 </body>
