@@ -20,7 +20,27 @@
         z-index: 0;
     }
 
-    /* Hoşgeldiniz yazısı */
+    /* --- SİS EFEKTİ --- */
+    .fog {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 255, 0, 0.12), transparent 70%);
+        animation: fogMove 12s infinite linear;
+        filter: blur(60px);
+        opacity: 0.5;
+        z-index: 1;
+    }
+
+    @keyframes fogMove {
+        0% { transform: translate(-20%, -10%); }
+        50% { transform: translate(10%, 20%); }
+        100% { transform: translate(-20%, -10%); }
+    }
+
+    /* --- GİRİŞ YAZISI GLITCH + NEON --- */
     #welcome {
         position: absolute;
         width: 100%;
@@ -28,9 +48,12 @@
         text-align: center;
         font-size: 80px;
         color: #00ff00;
-        text-shadow: 0 0 20px #00ff00;
-        z-index: 2;
-        animation: moveUp 4s forwards;
+        text-shadow:
+            0 0 20px #00ff00,
+            0 0 40px #00ff00,
+            0 0 80px #00ff00;
+        z-index: 3;
+        animation: moveUp 4s forwards, glitch 1.8s infinite;
     }
 
     @keyframes moveUp {
@@ -39,25 +62,33 @@
         100% { top: 10%; opacity: 1; font-size: 40px; }
     }
 
-    /* Terminal login kutusu */
+    @keyframes glitch {
+        0% { text-shadow: 2px 0 red, -2px 0 blue; }
+        50% { text-shadow: -2px 0 red, 2px 0 blue; }
+        100% { text-shadow: 2px 0 red, -2px 0 blue; }
+    }
+
+    /* --- TERMINAL GİRİŞ PANELİ --- */
     #login-box {
         position: absolute;
         top: 58%;
         left: 50%;
         transform: translateX(-50%);
         width: 420px;
-        background: rgba(0,0,0,0.7);
+        background: rgba(0,0,0,0.75);
         border: 1px solid #00ff00;
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 0 20px #00ff00;
         z-index: 3;
         opacity: 0;
-        animation: fadeIn 3s ease 3s forwards;
-        font-size: 18px;
+        animation: panelAppear 3s ease 4.2s forwards;
     }
 
-    @keyframes fadeIn { to { opacity: 1; } }
+    @keyframes panelAppear {
+        0% { opacity: 0; transform: translate(-50%, 20px); }
+        100% { opacity: 1; transform: translate(-50%, 0); }
+    }
 
     input {
         width: 100%;
@@ -83,20 +114,41 @@
         margin-top: 10px;
         font-size: 18px;
         min-height: 22px;
+        white-space: pre;
     }
+
+    /* typing effect */
+    .typing {
+        overflow: hidden;
+        border-right: 3px solid #00ff00;
+        white-space: nowrap;
+        width: 0;
+        animation: typing 3s steps(40) forwards 4.4s;
+    }
+
+    @keyframes typing {
+        from { width: 0; }
+        to { width: 100%; }
+    }
+
 </style>
 </head>
 <body>
 
 <canvas id="matrix"></canvas>
+<div class="fog"></div>
+<div class="fog" style="animation-duration: 18s; opacity: 0.3;"></div>
 
 <div id="welcome">Hoşgeldiniz</div>
 
 <div id="login-box">
-    <div>> Kullanıcı Adı:</div>
+    <div class="typing">> Terminal erişimi için giriş yapın:</div>
+
+    <br>
+    > Kullanıcı adı:
     <input type="text" id="user">
 
-    <div>> Şifre:</div>
+    > Şifre:
     <input type="password" id="pass">
 
     <button onclick="login()">Giriş Yap</button>
@@ -105,6 +157,7 @@
 </div>
 
 <script>
+    // --- MATRIX YAĞMURU ---
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
 
@@ -137,7 +190,7 @@
 
     setInterval(draw, 33);
 
-    /* GİRİŞ SİSTEMİ */
+    // --- GİRİŞ SİSTEMİ ---
     function login() {
         const user = document.getElementById("user").value.trim();
         const pass = document.getElementById("pass").value.trim();
@@ -148,7 +201,7 @@
 
         if (user === correctUser && pass === correctPass) {
             msg.style.color = "#00ff00";
-            msg.textContent = "> Giriş başarılı. Yükleniyor...";
+            msg.textContent = "> Giriş başarılı.\n> Sistem yükleniyor...";
         } else {
             msg.style.color = "red";
             msg.textContent = "> Hatalı giriş! Lütfen tekrar deneyin.";
