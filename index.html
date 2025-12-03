@@ -3,6 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <title>TNOPS</title>
+
+<!-- Xterm Terminal -->
+<link rel="stylesheet" href="https://unpkg.com/xterm/css/xterm.css" />
+<script src="https://unpkg.com/xterm/lib/xterm.js"></script>
+
+<!-- Pyodide (Tarayıcıda Python) -->
+<script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+
 <style>
     body {
         margin: 0;
@@ -25,32 +33,19 @@
         top: 40%;
         text-align: center;
         font-size: 80px;
-        color: #00ff80; /* daha parlak neon */
+        color: #00ff80;
         text-shadow: 0 0 20px #00ff80, 0 0 40px #00ff80;
         z-index: 2;
         animation: moveUp 4s ease forwards;
     }
 
-    /* Yazının yukarı çıkıp küçülmesi */
     @keyframes moveUp {
-        0% {
-            top: 40%;
-            font-size: 80px;
-            opacity: 1;
-        }
-        60% {
-            top: 10%;
-            font-size: 40px;
-            opacity: 1;
-        }
-        100% {
-            top: 10%;
-            font-size: 40px;
-            opacity: 1;
-        }
+        0% { top: 40%; font-size: 80px; opacity: 1; }
+        60% { top: 10%; font-size: 40px; opacity: 1; }
+        100% { top: 10%; font-size: 40px; opacity: 1; }
     }
 
-    /* Giriş paneli */
+    /* Login kutusu */
     #login-box {
         position: absolute;
         top: 60%;
@@ -68,9 +63,7 @@
         opacity: 0;
     }
 
-    @keyframes fadeIn {
-        to { opacity: 1; }
-    }
+    @keyframes fadeIn { to { opacity: 1; } }
 
     input {
         width: 90%;
@@ -95,8 +88,21 @@
         cursor: pointer;
     }
 
-    button:hover {
-        background: #00ffaa;
+    button:hover { background: #00ffaa; }
+
+    /* Terminal alanı */
+    #terminal {
+        position: absolute;
+        top: 120px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        height: 70%;
+        display: none;
+        z-index: 5;
+        border: 2px solid #00ff80;
+        box-shadow: 0 0 15px #00ff80;
+        border-radius: 10px;
     }
 </style>
 </head>
@@ -107,51 +113,113 @@
 <div id="welcome">Hoşgeldiniz</div>
 
 <div id="login-box">
-    <input type="text" placeholder="Kullanıcı adı">
-    <input type="password" placeholder="Şifre">
-    <button>Giriş Yap</button>
+    <input id="user" type="text" placeholder="Kullanıcı adı">
+    <input id="pass" type="password" placeholder="Şifre">
+    <button onclick="login()">Giriş Yap</button>
 </div>
 
+<div id="terminal"></div>
+
 <script>
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
+/* ---------------- MATRIX EFEKTI ---------------- */
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-    // Neon parlak yeşil kod akışı
-    const letters = "tnop";
-    const fontSize = 16;
-    const columns = Math.floor(canvas.width / fontSize);
+const letters = "tnop";
+const fontSize = 16;
+const columns = Math.floor(canvas.width / fontSize);
 
-    const drops = [];
-    for (let i = 0; i < columns; i++) {
-        drops[i] = Math.floor(Math.random() * canvas.height);
-    }
+const drops = [];
+for (let i = 0; i < columns; i++) drops[i] = Math.random() * canvas.height;
 
-    function draw() {
-        // Parlaklığı artırmak için daha hafif iz bırak
-        ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+function drawMatrix() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.fillStyle = "#00ff66"; 
-        ctx.shadowColor = "#00ff66"; 
-        ctx.shadowBlur = 15;
-        ctx.font = fontSize + "px monospace";
+    ctx.fillStyle = "#00ff66";
+    ctx.shadowColor = "#00ff66";
+    ctx.shadowBlur = 15;
+    ctx.font = fontSize + "px monospace";
 
-        for (let i = 0; i < drops.length; i++) {
-            const text = letters.charAt(Math.floor(Math.random() * letters.length));
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+    for (let i = 0; i < drops.length; i++) {
+        const text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        drops[i]++;
 
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.95) {
-                drops[i] = 0 - Math.floor(Math.random() * 20);
-            }
-
-            drops[i]++;
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.95) {
+            drops[i] = 0 - Math.random() * 20;
         }
     }
+}
+setInterval(drawMatrix, 33);
 
-    setInterval(draw, 33);
+/* ---------------- LOGIN SONRASI PYTHON TERMINALI ---------------- */
+
+let term;
+let pyodide;
+let pyReady = false;
+
+async function initPythonTerminal() {
+    term = new Terminal({
+        cursorBlink: true,
+        rows: 30,
+        theme: {
+            background: "#000000",
+            foreground: "#00ff80"
+        }
+    });
+
+    term.open(document.getElementById("terminal"));
+    term.write("Python yükleniyor...\r\n");
+
+    pyodide = await loadPyodide();
+    pyReady = true;
+
+    term.write("Python hazir!\r\n>>> ");
+    let buffer = "";
+
+    term.onData(async (e) => {
+        if (!pyReady) return;
+
+        if (e === "\r") {
+            term.write("\r\n");
+            try {
+                let result = await pyodide.runPythonAsync(buffer);
+                if (result !== undefined) term.write(result + "\r\n");
+            } catch (err) {
+                term.write(String(err) + "\r\n");
+            }
+            buffer = "";
+            term.write(">>> ");
+            return;
+        }
+
+        if (e === "\u007F") {
+            if (buffer.length > 0) {
+                buffer = buffer.slice(0, -1);
+                term.write("\b \b");
+            }
+            return;
+        }
+
+        buffer += e;
+        term.write(e);
+    });
+}
+
+function login() {
+    // Giriş paneli ve yazıyı gizle
+    document.getElementById("login-box").style.display = "none";
+    document.getElementById("welcome").style.display = "none";
+
+    // Terminali göster
+    document.getElementById("terminal").style.display = "block";
+
+    initPythonTerminal();
+}
 </script>
 
 </body>
