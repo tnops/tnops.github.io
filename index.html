@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Matrix Arka Plan</title>
+<title>tnop Matrix</title>
 <style>
     body {
         margin: 0;
@@ -27,33 +27,37 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const letters = "01";
+    // Artık MATRIX yerine "tnop" karakterleri düşecek
+    const letters = "tnop";
     const fontSize = 16;
-    const columns = canvas.width / fontSize;
+    const columns = Math.floor(canvas.width / fontSize);
 
-    // Her kolonun düşme başlangıç noktası
-    const drops = Array(Math.floor(columns)).fill(1);
+    // Her kolon rastgele bir yükseklikten başlasın
+    const drops = [];
+    for (let i = 0; i < columns; i++) {
+        drops[i] = Math.floor(Math.random() * canvas.height);
+    }
 
     function draw() {
-        // Saydam siyah ile hafif iz bırak
+        // Saydam siyah arka plan (iz bırakan efekt)
         ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Yazı stilini ayarla
+        // Yazı rengi ve font
         ctx.fillStyle = "#00ff00";
         ctx.font = fontSize + "px monospace";
 
-        drops.forEach((y, i) => {
+        for (let i = 0; i < drops.length; i++) {
             const text = letters.charAt(Math.floor(Math.random() * letters.length));
-            ctx.fillText(text, i * fontSize, y * fontSize);
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-            // Ekranın dışına çıktıysa sıfırla
-            if (y * fontSize > canvas.height && Math.random() > 0.975) {
-                drops[i] = 0;
+            // Belli bir şansa tekrar yukarı dönsün (random yağmur etkisi)
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.95) {
+                drops[i] = 0 - Math.floor(Math.random() * 20); // başlamayı daha da rastgeleleştir
             }
 
             drops[i]++;
-        });
+        }
     }
 
     setInterval(draw, 33); // ~30 FPS
@@ -61,3 +65,4 @@
 
 </body>
 </html>
+
